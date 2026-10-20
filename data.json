@@ -1,0 +1,52 @@
+{
+  "couple": {
+    "groomName": "Kishore",
+    "brideName": "Sahithi",
+    "tagline": "Two souls, one heart, forever bound in love",
+    "hashtag": "#KishoreWedsSahithi",
+    "backgroundImage": "header_5.jpg",
+    "groomAvator": "Kishore_2.JPG",
+    "brideAvator": "sahithi.jpg"
+  },
+  "families": {
+    "groom": {
+      "fatherName": "Sri Avanigadda Siva Naga Malleswara Rao",
+      "motherName": "Smt. Ramadevi"
+    },
+    "bride": {
+      "fatherName": "Sri Nagulavancha Thyagaraju",
+      "motherName": "Smt. Jaya Venkata Radhika"
+    }
+  },
+  "weddingDate": "2026-11-22T20:48:00+05:30",
+  "events": [
+    {
+      "name": "Wedding Ceremony",
+      "emoji": "💍",
+      "date": "November 22, 2026",
+      "time": "08:48 PM",
+      "description": "The sacred union — witness the divine moment as Kishore and Sahithi begin their eternal journey together.",
+      "venue": "Bandlamudi Gardens \"Vedika\"",
+      "address": "Amaravathi Road, Guntur, Andhra Pradesh 522002",
+      "googleMapsUrl": "https://maps.app.goo.gl/ucbfCQ4Q5QpQQYMo7"
+    },
+    {
+      "name": "Reception",
+      "emoji": "🎉",
+      "date": "November 24, 2026",
+      "time": "10:00 AM onwards",
+      "description": "Join us for a grand afternoon lunch, dance, and celebrations as we welcome the newlyweds.",
+      "venue": "A.S.R. Function Hall",
+      "address": "Aswaraopalem Main Road, Avanigadda, Andhra Pradesh 521121",
+      "googleMapsUrl": "https://maps.app.goo.gl/nhCfdHvvB3dbPsW2A"
+    }
+  ],
+  "backgoundMusic": "bgm.mp3",
+  "youtubeLink": "",
+  "youtubeLiveUrl": "",
+  "footer": {
+    "message": "We would be honoured by your presence on our special day.",
+    "contactPhone": "+91 81792 18589",
+    "contactEmail": ""
+  }
+}
