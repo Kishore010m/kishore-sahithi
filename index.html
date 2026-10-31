@@ -52,6 +52,7 @@
 
         html {
             scroll-behavior: smooth;
+            overflow-x: hidden;
         }
 
         body {
@@ -59,6 +60,7 @@
             background: #FDF8F0;
             color: #3a2a2a;
             overflow-x: hidden;
+            width: 100%;
         }
 
         /* ========= LOADING SCREEN ========= */
@@ -462,6 +464,38 @@
             margin-top: 0.3rem;
         }
 
+        @media (max-width: 480px) {
+            .hero-content {
+                width: 100%;
+                min-width: 0;
+                padding: 1.25rem 0.75rem;
+            }
+
+            .hero-names {
+                font-size: clamp(2.25rem, 10vw, 3rem);
+            }
+
+            .countdown-wrap {
+                width: 100%;
+                gap: 0.4rem;
+            }
+
+            .countdown-box {
+                flex: 1 1 0;
+                min-width: 0;
+                padding: 0.65rem 0.2rem;
+            }
+
+            .countdown-num {
+                font-size: clamp(1.25rem, 6vw, 2rem);
+            }
+
+            .countdown-label {
+                font-size: clamp(0.55rem, 2.4vw, 0.7rem);
+            }
+
+        }
+
         /* ========= SCROLL HINT ========= */
         .scroll-hint {
             position: absolute;
@@ -529,6 +563,18 @@
         .reveal-right.active {
             opacity: 1;
             transform: translateX(0);
+        }
+
+        @media (max-width: 480px) {
+            .reveal-left,
+            .reveal-right {
+                transform: translateY(30px);
+            }
+
+            .reveal-left.active,
+            .reveal-right.active {
+                transform: translateY(0);
+            }
         }
 
         .reveal-scale {
@@ -702,8 +748,8 @@
         /* ========= MUSIC PLAYER ========= */
         #musicToggle {
             position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
+            top: 1rem;
+            right: 1rem;
             z-index: 100;
             width: 50px;
             height: 50px;
@@ -727,6 +773,27 @@
         #musicToggle.playing {
             animation: glowPulse 2s ease-in-out infinite;
         }
+
+        #resumeAutoScroll {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            padding: 0.65rem 1rem;
+            border: 1px solid #D4AF37;
+            border-radius: 999px;
+            background: rgba(92, 0, 23, 0.9);
+            color: #E8D48B;
+            font: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(128, 0, 32, 0.3);
+        }
+
+        #resumeAutoScroll[hidden] {
+            display: none;
+        }
     </style>
 </head>
 
@@ -742,6 +809,7 @@
         <source id="bgMusicSrc" src="bgm.mp3" type="audio/mpeg">
     </audio>
     <button id="musicToggle" onclick="toggleMusic()" title="Toggle Music">🔇</button>
+    <button id="resumeAutoScroll" onclick="resumeAutoScroll()" hidden>Resume auto-scroll ↓</button>
 
     <!-- ===== HERO SECTION ===== -->
     <section class="hero-section" id="hero">
@@ -929,7 +997,7 @@
                                         November 24, 2026</span>
                                     <span class="flex items-center gap-1 text-sm font-semibold px-3 py-1 rounded-full"
                                         style="background: transparent; color: #800020; border: 1px solid rgba(212, 175, 55, 0.4);">🕐
-                                        10:00 AM onwards</span>
+                                        12:00 PM onwards</span>
                                 </div>
                                 <p class="text-gray-600 mb-4 leading-relaxed">Join us for a grand afternoon lunch,
                                     dance, and celebrations as we welcome the newlyweds.</p>
@@ -1211,7 +1279,98 @@
 
             // Setup scroll observer after a slight delay to let DOM settle
             setTimeout(setupObserver, 2200);
+            autoScrollStartTimeout = setTimeout(() => {
+                autoScrollStartTimeout = 0;
+                startAutoScroll();
+            }, 2200);
         });
+
+        // ---------- AUTOMATIC SCROLL ----------
+        let autoScrollFrame = 0;
+        let autoScrollLastTime = 0;
+        let autoScrollPaused = true;
+        let autoScrollPausedByUser = false;
+        let autoScrollStartTimeout = 0;
+        let previousScrollBehavior = '';
+
+        function runAutoScroll(timestamp) {
+            if (autoScrollPaused) return;
+
+            if (!document.hidden) {
+                if (autoScrollLastTime) {
+                    const elapsed = Math.min((timestamp - autoScrollLastTime) / 1000, 0.05);
+                    window.scrollBy(0, elapsed * 105);
+                }
+
+                if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 3) {
+                    finishAutoScroll();
+                    return;
+                }
+            }
+
+            autoScrollLastTime = document.hidden ? 0 : timestamp;
+            autoScrollFrame = requestAnimationFrame(runAutoScroll);
+        }
+
+        function restoreScrollBehavior() {
+            document.documentElement.style.scrollBehavior = previousScrollBehavior;
+        }
+
+        function startAutoScroll() {
+            if (autoScrollPausedByUser || !autoScrollPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            autoScrollPaused = false;
+            autoScrollLastTime = 0;
+            document.getElementById('resumeAutoScroll').hidden = true;
+            previousScrollBehavior = document.documentElement.style.scrollBehavior;
+            document.documentElement.style.scrollBehavior = 'auto';
+            autoScrollFrame = requestAnimationFrame(runAutoScroll);
+        }
+
+        function pauseAutoScroll() {
+            if (autoScrollPaused) {
+                if (!autoScrollStartTimeout || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+                autoScrollPausedByUser = true;
+                clearTimeout(autoScrollStartTimeout);
+                autoScrollStartTimeout = 0;
+                document.getElementById('resumeAutoScroll').hidden = false;
+                return;
+            }
+
+            autoScrollPaused = true;
+            autoScrollPausedByUser = true;
+            cancelAnimationFrame(autoScrollFrame);
+            autoScrollFrame = 0;
+            autoScrollLastTime = 0;
+            restoreScrollBehavior();
+            document.getElementById('resumeAutoScroll').hidden = false;
+        }
+
+        function finishAutoScroll() {
+            autoScrollPaused = true;
+            autoScrollPausedByUser = false;
+            cancelAnimationFrame(autoScrollFrame);
+            autoScrollFrame = 0;
+            autoScrollLastTime = 0;
+            restoreScrollBehavior();
+            document.getElementById('resumeAutoScroll').hidden = true;
+        }
+
+        function resumeAutoScroll() {
+            autoScrollPausedByUser = false;
+            startAutoScroll();
+        }
+
+        function pauseAutoScrollForInteraction(event) {
+            if (event.target instanceof Element && event.target.closest('button, a')) return;
+            pauseAutoScroll();
+        }
+
+        window.addEventListener('wheel', pauseAutoScroll, { passive: true });
+        window.addEventListener('touchstart', pauseAutoScrollForInteraction, { passive: true });
+        window.addEventListener('pointerdown', pauseAutoScrollForInteraction, { passive: true });
+        window.addEventListener('keydown', pauseAutoScroll);
 
         // ---------- MUSIC TOGGLE ----------
         let musicPlaying = false;
